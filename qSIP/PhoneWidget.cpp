@@ -14,7 +14,7 @@ enum {
 
 struct PhoneWidget::Private {
 	std::shared_ptr<PhoneThread> phone;
-	QTime registration_time;
+	QElapsedTimer registration_time;
 	int registration_seconds = 0;
 	QString dtmf;
 	QTime ringing_time;
@@ -79,7 +79,7 @@ void PhoneWidget::setup(ApplicationSettings const &a)
 	m->phone->start();
 
 	m->registration_seconds = 0;
-	m->registration_time = QTime();
+	m->registration_time = QElapsedTimer();
 	m->registration_time.start();
 
 	updateUI();
