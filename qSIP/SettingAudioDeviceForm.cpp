@@ -1,7 +1,8 @@
 #include "SettingAudioDeviceForm.h"
 #include "ui_SettingAudioDeviceForm.h"
 
-#include <QAudioDeviceInfo>
+#include <QMediaDevices>
+#include <QAudioDevice>
 
 SettingAudioDeviceForm::SettingAudioDeviceForm(QWidget *parent)
 	: AbstractSettingForm(parent)
@@ -13,16 +14,17 @@ SettingAudioDeviceForm::SettingAudioDeviceForm(QWidget *parent)
 	ui->comboBox_input->addItem(def);
 	ui->comboBox_output->addItem(def);
 
-	QList<QAudioDeviceInfo> inputdevs = QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
-	for (auto const &info : inputdevs) {
-		if (info.deviceName() == def) continue;
-		ui->comboBox_input->addItem(info.deviceName());
-	}
-	QList<QAudioDeviceInfo> outputdevs = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
-	for (auto const &info : outputdevs) {
-		if (info.deviceName() == def) continue;
-		ui->comboBox_output->addItem(info.deviceName());
-	}
+    const QList<QAudioDevice> inputdevs = QMediaDevices::audioInputs();
+    for (auto const &device : inputdevs) {
+        if (device.description() == def) continue;
+        ui->comboBox_input->addItem(device.description());
+    }
+
+    const QList<QAudioDevice> outputdevs = QMediaDevices::audioOutputs();
+    for (auto const &device : outputdevs) {
+        if (device.description() == def) continue;
+        ui->comboBox_output->addItem(device.description());
+    }
 }
 
 void SettingAudioDeviceForm::exchange(bool save)
