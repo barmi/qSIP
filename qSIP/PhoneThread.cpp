@@ -6,8 +6,11 @@
 #include <re.h>
 #include <baresip.h>
 #include <string.h>
-#include <QAudioInput>
-#include <QAudioOutput>
+#include <QAudioDevice>
+#include <QAudioSource>
+#include <QAudioSink>
+#include <QMediaDevices>
+#include <QIODevice>
 
 #ifdef Q_OS_WIN
 #define _USE_MATH_DEFINES
@@ -71,8 +74,8 @@ struct PhoneThread::Private {
 	QString peer_number;
 	VoicePtr voice;
 
-	std::shared_ptr<QAudioInput> audio_input;
-	std::shared_ptr<QAudioOutput> audio_output;
+	std::shared_ptr<QAudioSource> audio_input;
+	std::shared_ptr<QAudioSink> audio_output;
 	QIODevice *audio_input_device = nullptr;
 	QIODevice *audio_output_device = nullptr;
 	char audio_input_buffer[8192];
@@ -90,29 +93,33 @@ PhoneThread::PhoneThread(ApplicationSettings const *as, std::string const &user_
 {
 	m->user_agent = user_agent;
 
-	QAudioDeviceInfo idev = QAudioDeviceInfo::defaultInputDevice();
-	QAudioDeviceInfo odev = QAudioDeviceInfo::defaultOutputDevice();
+	QAudioDevice idev = QMediaDevices::defaultAudioInput();
+	QAudioDevice odev = QMediaDevices::defaultAudioOutput();
 
-	for (auto const &info : QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
-		if (info.deviceName() == as->audio_input) {
-			idev = info;
+	const QList<QAudioDevice> inputDevices = QMediaDevices::audioInputs();
+	for (auto const &device: inputDevices) {
+		if (device.description() == as->audio_input) {
+			idev = device;
+			break;
 		}
 	}
-	for (auto const &info : QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
-		if (info.deviceName() == as->audio_output) {
-			odev = info;
+	const QList<QAudioDevice> outputDevices = QMediaDevices::audioOutputs();
+	for (auto const &device: outputDevices) {
+		if (device.description() == as->audio_output) {
+			odev = device;
+			break;
 		}
 	}
 
 	QAudioFormat format;
 	format.setChannelCount(1);
 	format.setSampleRate(8000);
-	format.setSampleSize(16);
-	format.setCodec("audio/pcm");
-	format.setSampleType(QAudioFormat::SignedInt);
-	format.setByteOrder(QAudioFormat::LittleEndian);
-	m->audio_input = std::shared_ptr<QAudioInput>(new QAudioInput(idev, format));
-	m->audio_output = std::shared_ptr<QAudioOutput>(new QAudioOutput(odev, format));
+	format.setSampleFormat(QAudioFormat::Int16);
+//	format.setCodec("audio/pcm");
+//	format.setSampleType(QAudioFormat::SignedInt);
+//	format.setByteOrder(QAudioFormat::LittleEndian);
+	m->audio_input = std::shared_ptr<QAudioSource>(new QAudioSource(idev, format));
+	m->audio_output = std::shared_ptr<QAudioSink>(new QAudioSink(odev, format));
 	m->audio_output->setBufferSize(800);
 	m->audio_input_device = m->audio_input->start();
 	m->audio_output_device = m->audio_output->start();
@@ -574,7 +581,7 @@ void PhoneThread::hangup()
 	setState(PhoneState::Idle);
 }
 
-QAudioInput *PhoneThread::audioInput()
+QAudioSource *PhoneThread::audioInput()
 {
 	return m->audio_input.get();
 }
@@ -583,7 +590,7 @@ QIODevice *PhoneThread::audioInputDevice()
 	return m->audio_input_device;
 }
 
-QAudioOutput *PhoneThread::audioOutput()
+QAudioSink *PhoneThread::audioOutput()
 {
 	return m->audio_output.get();
 }

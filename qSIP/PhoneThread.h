@@ -20,8 +20,8 @@
 #endif
 
 class ApplicationSettings;
-class QAudioInput;
-class QAudioOutput;
+class QAudioSource;
+class QAudioSink;
 class QIODevice;
 
 struct Voice {
@@ -69,9 +69,9 @@ private:
 	void setState(PhoneState s);
 	void clearPeerUser();
 	const char *uaName() const;
-	QAudioInput *audioInput();
+	QAudioSource *audioInput();
 	QIODevice *audioInputDevice();
-	QAudioOutput *audioOutput();
+	QAudioSink *audioOutput();
 	QIODevice *audioOutputDevice();
 	void customNotify(const char *ptr, int len);
 	void detectDTMF(int size, const int16_t *data);
