@@ -17,7 +17,7 @@ struct PhoneWidget::Private {
 	QElapsedTimer registration_time;
 	int registration_seconds = 0;
 	QString dtmf;
-	QTime ringing_time;
+    QElapsedTimer ringing_time;
 	int ringing_timeout_sec = 30;
 	bool answer_enabled = true;
 
@@ -147,7 +147,7 @@ void PhoneWidget::onStateChanged(int state)
 {
 	PhoneState s = (PhoneState)state;
 	if (s != PhoneState::Outgoing) {
-		m->ringing_time = QTime();
+        m->ringing_time = QElapsedTimer();
 	}
 
 	updateUI();
@@ -251,7 +251,7 @@ void PhoneWidget::push(int n)
 	}
 	if ((n >= '0' && n <= '9') || (n == PAD_ASTER || n == PAD_SHARP)) {
 		QString text = ui->lineEdit_phone_number->text();
-		text += n;
+        text += QChar(n);
 		ui->lineEdit_phone_number->setText(text);
 	}
 }
@@ -330,7 +330,7 @@ void PhoneWidget::on_toolButton_hangup_clicked()
 void PhoneWidget::call(QString const &to)
 {
 	m->dtmf.clear();
-	m->ringing_time = QTime();
+    m->ringing_time = QElapsedTimer();
 
 	if (m->phone->call(to)) {
 		QString s = "Calling to %1";

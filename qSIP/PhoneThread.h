@@ -52,6 +52,8 @@ enum class Condition {
 	Rejected,
 };
 
+enum ua_event : int;
+
 class PhoneThread : public QThread, public AudioIO {
 	Q_OBJECT
 private:

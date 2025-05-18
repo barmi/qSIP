@@ -27,7 +27,7 @@
 
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
-typedef long     ssize_t;
+// typedef long     ssize_t;
 #else
 
 #ifndef __int8_t_defined

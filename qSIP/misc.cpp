@@ -422,7 +422,7 @@ QString misc::determinFileType(const QString &filecommand, const QString &path, 
 
 		if (!ba.isEmpty()) {
 			QString s = QString::fromUtf8(ba).trimmed();
-			QStringList list = s.split(';', QString::SkipEmptyParts);
+            QStringList list = s.split(';', Qt::SkipEmptyParts);
 			if (!list.isEmpty()) {
 				QString mimetype = list[0].trimmed();
 				//				qDebug() << mimetype;

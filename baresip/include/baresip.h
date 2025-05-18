@@ -491,7 +491,7 @@ void play_set_path(const char *path);
 struct ua;
 
 /** Events from User-Agent */
-enum ua_event {
+enum ua_event : int {
 	UA_EVENT_REGISTERING = 0,
 	UA_EVENT_REGISTER_OK,
 	UA_EVENT_REGISTER_FAIL,
